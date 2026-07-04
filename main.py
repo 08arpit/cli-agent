@@ -1,9 +1,5 @@
-from dotenv import load_dotenv
-
 from client.llm_client import LLMClient
 import asyncio
-
-load_dotenv()
 
 async def main():
     client = LLMClient()

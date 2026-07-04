@@ -1,5 +1,3 @@
-import os
-
 from openai import AsyncOpenAI
 from typing import Any, AsyncGenerator
 
@@ -11,14 +9,9 @@ class LLMClient:
     
     def get_client(self) -> AsyncOpenAI:
         if self._client is None:
-            api_key = os.environ.get("OPENROUTER_API_KEY")
-            if not api_key:
-                raise RuntimeError(
-                    "OPENROUTER_API_KEY is not set. Copy .env.example to .env and add your key."
-                )
             self._client = AsyncOpenAI(
-                api_key=api_key,
-                base_url="https://openrouter.ai/api/v1",
+                api_key='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',
+                base_url='https://openrouter.ai/api/v1',
             )
         return self._client
 
