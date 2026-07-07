@@ -2,7 +2,7 @@ import asyncio
 from typing import Any, AsyncGenerator
 from openai import APIError, APIConnectionError, RateLimitError, AsyncOpenAI
 
-from client.response import EventType, StreamEvent, TextDelta, TokenUsage
+from client.response import StreamEventType, StreamEvent, TextDelta, TokenUsage
 
 class LLMClient:
     def __init__(self) -> None:
@@ -12,7 +12,7 @@ class LLMClient:
     def get_client(self) -> AsyncOpenAI:
         if self._client is None:
             self._client = AsyncOpenAI(
-                api_key='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',
+                api_key='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',
                 base_url='https://openrouter.ai/api/v1',
             )
         return self._client
@@ -30,7 +30,7 @@ class LLMClient:
         client = self.get_client()
 
         kwargs = {
-            "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+            "model": "poolside/laguna-m.1:free",
             "messages": messages,
             "stream": stream,
         }
@@ -51,7 +51,7 @@ class LLMClient:
                     await asyncio.sleep(wait_time)
                 else:
                     yield StreamEvent(
-                        type=EventType.ERROR,
+                        type=StreamEventType.ERROR,
                         error=f"Rate limit exceeded: {e}"
                     )
                     return
@@ -62,14 +62,14 @@ class LLMClient:
                     await asyncio.sleep(wait_time)
                 else:
                     yield StreamEvent(
-                        type=EventType.ERROR,
+                        type=StreamEventType.ERROR,
                         error=f"Connect Error: {e}"
                     )
                     return
 
             except APIError as e:
                 yield StreamEvent(
-                    type=EventType.ERROR,
+                    type=StreamEventType.ERROR,
                     error=f"API Error: {e}"
                 )
                 return
@@ -104,12 +104,12 @@ class LLMClient:
 
             if delta.content:
                 yield StreamEvent(
-                    type=EventType.TEXT_DELTA,
+                    type=StreamEventType.TEXT_DELTA,
                     text_delta=TextDelta(delta.content)
                 )
         
         yield StreamEvent(
-            type=EventType.MESSAGE_COMPLETE,
+            type=StreamEventType.MESSAGE_COMPLETE,
             finish_reason=finish_reason,
             usage=usage
         )
@@ -136,7 +136,7 @@ class LLMClient:
                 cached_tokens=response.usage.prompt_tokens_details.cached_tokens,
             )
         return StreamEvent(
-            type=EventType.MESSAGE_COMPLETE,
+            type=StreamEventType.MESSAGE_COMPLETE,
             text_delta=text_delta,
             finish_reason=choice.finish_reason,
             usage=usage,
